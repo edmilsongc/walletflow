@@ -473,3 +473,18 @@ body {
         flex-direction: column;
     }
 }
+
+/* Mensagem de erro de autenticação */
+.form-message {
+    margin: 0 0 12px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.form-message-error {
+    color: #b91c1c;
+}
+
+.form-message[hidden] {
+    display: none;
+}
