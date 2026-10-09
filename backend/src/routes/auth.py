@@ -5,7 +5,7 @@ import re
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api")
 
-PASSWORD_REGEX = re.compile(r"^(?=.*[^a-zA-Z0-9\\s])[\\s\\S]{9,}$")
+PASSWORD_REGEX = re.compile(r"^(?=.*[^a-zA-Z0-9\s])[\s\S]{9,}$")
 
 
 @auth_bp.route("/register", methods=["POST"])
