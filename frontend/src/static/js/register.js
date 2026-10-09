@@ -6,7 +6,7 @@ const passwordSpecialRequirement = document.querySelector("#password-special");
 const registerError = document.querySelector("#register-error");
 
 // Exige pelo menos 9 caracteres e um caractere especial que não seja espaço.
-const passwordRegex = /^(?=.*[^a-zA-Z0-9\\s])[\\s\\S]{9,}$/;
+const passwordRegex = /^(?=.*[^a-zA-Z0-9\s])[\s\S]{9,}$/;
 
 function updateRequirement(element, isValid) {
     element.classList.toggle("requirement-valid", isValid);
@@ -16,7 +16,7 @@ function updateRequirement(element, isValid) {
 function validatePassword() {
     const password = passwordInput.value;
     const hasMinimumLength = password.length >= 9;
-    const hasSpecialCharacter = /[^a-zA-Z0-9\\s]/.test(password);
+    const hasSpecialCharacter = /[^a-zA-Z0-9\s]/.test(password);
 
     updateRequirement(passwordLengthRequirement, hasMinimumLength);
     updateRequirement(passwordSpecialRequirement, hasSpecialCharacter);
