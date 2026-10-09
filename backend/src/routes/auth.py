@@ -1,80 +1,91 @@
 from flask import Blueprint, session, jsonify, request
 from src.database.connection import get_connection
 import bcrypt
+import re
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api")
 
-@auth_bp.route('/register', methods=['POST'])
+PASSWORD_REGEX = re.compile(r"^(?=.*[^a-zA-Z0-9\s])[\s\S]{9,}$")
+
+
+@auth_bp.route("/register", methods=["POST"])
 def api_register():
-    if request.method == 'POST':
-        data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
-        name = data.get('name')
-        email = data.get('email')
-        password = data.get('password')
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
 
-        hashed_password = bcrypt.hashpw(
-            password.encode("utf-8"),
-            bcrypt.gensalt()
+    if not all(isinstance(value, str) and value.strip() for value in (name, email, password)):
+        return jsonify({"message": "invalid_data"}), 400
+
+    # Mantém a mesma política aplicada pelo formulário: 9+ caracteres e
+    # pelo menos um caractere especial que não seja espaço.
+    if not PASSWORD_REGEX.fullmatch(password):
+        return jsonify({"message": "invalid_password"}), 400
+
+    hashed_password = bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "insert into users (name, email, password) values (%s, %s, %s)",
+            (name.strip(), email.strip(), hashed_password)
         )
-
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("insert into users (name, email, password) values (%s, %s, %s)", (name, email, hashed_password.decode("utf-8")))
         conn.commit()
-        
+    except Exception:
+        conn.rollback()
+        # Não expõe detalhes internos do banco ou se um endereço já está cadastrado.
+        return jsonify({"message": "registration_failed"}), 400
+    finally:
         cursor.close()
         conn.close()
-    return jsonify({
-        'message': 'success'
-    })
 
-@auth_bp.route('/login', methods=['POST'])
+    return jsonify({"message": "success"}), 201
+
+
+@auth_bp.route("/login", methods=["POST"])
 def api_login():
-    if request.method == 'POST':
-        data = request.get_json()
+    data = request.get_json(silent=True) or {}
+    email = data.get("email")
+    password = data.get("password")
 
-        email = data.get('email')
-        password = data.get('password')
+    if not isinstance(email, str) or not isinstance(password, str):
+        return jsonify({"message": "invalid_credentials"}), 401
 
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("select * from users where email = %s", (email,))
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("select * from users where email = %s", (email.strip(),))
         user = cursor.fetchone()
-
+    finally:
         cursor.close()
         conn.close()
 
-        if user is None:
-            return jsonify({
-                'message': 'user not exists'
-            })
+    # A mesma resposta é usada quando o e-mail não existe ou a senha falha.
+    if user is None:
+        return jsonify({"message": "invalid_credentials"}), 401
 
-        hashed_password = user[3]
+    hashed_password = user[3]
+    if bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8")):
+        session["user_id"] = user[0]
+        return jsonify({"message": "success"}), 200
 
-        if bcrypt.checkpw(
-            password.encode("utf-8"),
-            hashed_password.encode("utf-8")
-        ):
-            session['user_id'] = user[0]
-            return jsonify({
-                'message': 'success'
-            })
-        return jsonify({
-            'message': 'error'
-        })
+    return jsonify({"message": "invalid_credentials"}), 401
 
-@auth_bp.route('/session', methods=['GET'])
+
+@auth_bp.route("/session", methods=["GET"])
 def session_status():
-    user_id = session.get('user_id')
+    user_id = session.get("user_id")
 
     if user_id is None:
-        return jsonify({
-            'authenticated': False
-        }), 401
+        return jsonify({"authenticated": False}), 401
+
     return jsonify({
-        'authenticated': True,
-        'user_id': user_id
+        "authenticated": True,
+        "user_id": user_id
     }), 200

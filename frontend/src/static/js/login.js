@@ -1,34 +1,47 @@
 const form = document.querySelector("#FormLogin");
+const loginError = document.querySelector("#login-error");
+
+function showLoginError(message) {
+    loginError.textContent = message;
+    loginError.hidden = false;
+}
+
+function clearLoginError() {
+    loginError.textContent = "";
+    loginError.hidden = true;
+}
+
+form.elements["email"].addEventListener("input", clearLoginError);
+form.elements["password"].addEventListener("input", clearLoginError);
+
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    clearLoginError();
 
     const email = form.elements["email"].value.trim();
-    const password = form.elements["password"].value.trim();
+    // Não aplicar trim à senha para preservar exatamente o que foi digitado.
+    const password = form.elements["password"].value;
 
-    const response = await fetch("http://127.0.0.1:5000/api/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email,
-            password
-        })
-    });
-    const data = await response.json();
+    try {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
 
-    console.log(data);
+        const data = await response.json();
 
-    if (data['message'] === "success") {
-        setTimeout(() => {
+        if (response.ok && data.message === "success") {
             form.reset();
-        }, 300);
-
-        setTimeout(() => {
             window.location.href = "/dashboard";
-        }, 400);
-    } else {
-        alert("Credenciais inválidas ou usuário inexistente.");
+            return;
+        }
+
+        showLoginError("E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.");
+    } catch {
+        showLoginError("Não foi possível conectar ao servidor. Tente novamente.");
     }
 });

@@ -470,3 +470,49 @@ body {
         flex-direction: column;
     }
 }
+
+/* Requisitos de senha e mensagens de validação */
+.password-requirements {
+    list-style: none;
+    margin: -4px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.password-requirements li::before {
+    display: inline-block;
+    width: 18px;
+    font-weight: 700;
+}
+
+.password-requirements .requirement-invalid {
+    color: #6b7280;
+}
+
+.password-requirements .requirement-invalid::before {
+    content: "○";
+}
+
+.password-requirements .requirement-valid {
+    color: #15803d;
+}
+
+.password-requirements .requirement-valid::before {
+    content: "✓";
+}
+
+.form-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.form-message-error {
+    color: #b91c1c;
+}
+
+.form-message[hidden] {
+    display: none;
+}
