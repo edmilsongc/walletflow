@@ -123,6 +123,13 @@
                     </div>
                 </div>
 
+                <ul id="password-requirements" class="password-requirements" aria-live="polite">
+                    <li id="password-length" class="requirement-invalid">Use pelo menos 9 caracteres.</li>
+                    <li id="password-special" class="requirement-invalid">Inclua pelo menos um caractere especial (ex.: !, @, #).</li>
+                </ul>
+
+                <p id="register-error" class="form-message form-message-error" role="alert" hidden></p>
+
                 <div class="flex-row">
                     <div class="remember">
                         <input id="register-terms" name="terms" type="checkbox" required>
