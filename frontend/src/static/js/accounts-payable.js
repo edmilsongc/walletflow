@@ -1,3 +1,48 @@
+
+
+// Ações locais: não enviam alterações nem exclusões para a API.
+function addCardActions(card, fieldLabels) {
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "card-action-button edit";
+    editButton.title = "Editar conta";
+    editButton.setAttribute("aria-label", "Editar conta");
+    editButton.innerHTML = '<i class="bi bi-pencil-square" aria-hidden="true"></i>';
+    editButton.addEventListener("click", () => {
+        const cells = Array.from(card.children).filter((element) => element !== actions);
+        const changes = [];
+
+        for (let index = 0; index < cells.length; index += 1) {
+            const currentValue = cells[index].textContent.trim();
+            const nextValue = window.prompt(`Editar ${fieldLabels[index] || "campo"}:`, currentValue);
+            if (nextValue === null) return;
+            changes.push(nextValue.trim());
+        }
+
+        cells.forEach((cell, index) => {
+            cell.textContent = changes[index];
+            cell.title = changes[index];
+        });
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "card-action-button delete";
+    deleteButton.title = "Excluir conta da visualização";
+    deleteButton.setAttribute("aria-label", "Excluir conta da visualização");
+    deleteButton.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
+    deleteButton.addEventListener("click", () => {
+        if (window.confirm("Remover esta conta da visualização? Essa ação não exclui o registro do banco de dados.")) {
+            card.remove();
+        }
+    });
+
+    actions.append(editButton, deleteButton);
+    card.append(actions);
+}
 const amountInput = document.querySelector("#payable-amount");
 amountInput.addEventListener("input", (event) => {
     let value = event.target.value;
@@ -160,6 +205,8 @@ const dataAccountsReceivable = async () => {
             status,
             notes
         );
+
+        addCardActions(card, ["Descrição","Categoria","Fornecedor","Valor","Vencimento","Status","Observação"]);
 
         container.append(card);
     });
