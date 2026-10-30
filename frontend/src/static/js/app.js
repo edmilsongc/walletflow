@@ -1,10 +1,6 @@
 /*
  * Estrutura visual comum do WalletFlow.
  *
- * Este arquivo NÃO busca, cria ou altera dados. Ele apenas conecta controles do
- * HTML ao front-end e dispara eventos CustomEvent para a camada de rotas que
- * será adicionada posteriormente.
- *
  * Contrato para integração:
  * document.addEventListener('walletflow:form-submit', event => {
  *   // event.detail.name    -> valor de data-form-event no <form>
@@ -75,9 +71,7 @@ function initializeTabs() {
 }
 
 /**
- * Formulários HTML: impede o envio nativo e entrega os campos à futura API.
- * Para completar a integração, escute walletflow:form-submit e faça o fetch
- * ou envie os dados ao backend a partir do listener da sua aplicação.
+ * Formulários HTML: impede o envio nativo e entrega os campos à aplicação.
  */
 function initializeForms() {
     document.querySelectorAll('form[data-form-event]').forEach(form => {
@@ -92,7 +86,7 @@ function initializeForms() {
     });
 }
 
-/** Controles de exportação do dashboard; nenhum arquivo é gerado no front-end. */
+/** Controles de exportação do dashboard. */
 function initializeExports() {
     document.querySelectorAll('[data-export-format]').forEach(button => {
         button.addEventListener('click', () => {
@@ -146,16 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
 window.WalletFlowUI = { showToast };
 
 const dataUser = async () => {
-    const response = await fetch(
-        "http://127.0.0.1:5000/api/dashboard",
-        {
+    const profileName = document.querySelector("#perfilUser");
+    if (!profileName) return;
+
+    try {
+        const response = await fetch("/api/dashboard", {
             method: "GET",
-            credentials: "include"
-        }
-    );
+            credentials: "same-origin"
+        });
+        if (!response.ok) return;
 
-    const data = await response.json();
-
-    document.querySelector("#perfilUser").innerHTML = data["user"];
+        const data = await response.json();
+        profileName.textContent = Array.isArray(data.user) ? data.user[0] || "Perfil" : data.user || "Perfil";
+    } catch (error) {
+        console.error("Não foi possível carregar o perfil:", error);
+    }
 }
 dataUser();

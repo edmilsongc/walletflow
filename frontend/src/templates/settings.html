@@ -53,10 +53,10 @@
     <div class="card-header">
         <div>
             <h2 class="card-title">Exportar dados do dashboard</h2>
-            <p class="card-sub">Selecione o período e envie a solicitação de exportação para sua rota.</p>
+            <p class="card-sub">Baixe o resumo financeiro ou inclua as contas a pagar e a receber no período.</p>
         </div>
     </div>
-    <form data-form-event="settings:export-dashboard">
+    <form data-form-event="settings:export-dashboard" data-export-endpoint="/api/exports/dashboard">
         <div class="form-grid">
             <div class="field"><label for="export-start">Data inicial</label><input id="export-start" name="start_date"
                     type="date"></div>

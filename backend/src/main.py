@@ -3,6 +3,7 @@ from src.routes.auth import auth_bp
 from src.routes.dataUser import dataUser_bp
 from src.routes.accountsReceivable import accountsReceivable_bp
 from src.routes.accountsPayable import accountsPayable_bp
+from src.routes.exports import exports_bp
 
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -27,6 +28,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(dataUser_bp)
 app.register_blueprint(accountsReceivable_bp)
 app.register_blueprint(accountsPayable_bp)
+app.register_blueprint(exports_bp)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

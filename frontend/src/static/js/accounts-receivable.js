@@ -70,7 +70,7 @@ form.addEventListener("submit", async (event) => {
     const notes = form.elements["notes"].value.trim();
 
     const response = await fetch(
-        "http://127.0.0.1:5000/data/accounts-receivable",
+        "/data/accounts-receivable",
         {
             method: "POST",
             credentials: "include",
@@ -100,7 +100,7 @@ form.addEventListener("submit", async (event) => {
 
 const dataAccountsReceivable = async () => {
     const response = await fetch(
-        "http://127.0.0.1:5000/data/accounts-receivable/data-user",
+        "/data/accounts-receivable/data-user",
         {
             method: "GET",
             credentials: "include"
